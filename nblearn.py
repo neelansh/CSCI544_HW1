@@ -3,6 +3,7 @@ import os
 import sys
 import json
 from collections import Counter
+import math
 
 def load_data(path):
     if(not os.path.exists(path)):
@@ -39,7 +40,6 @@ class Naive_bayes_model:
         count_token_ham = Counter()
         
         for (x, y) in dataset:
-            print(x, y)
             if(y == 'spam'):
                 count_token_spam.update(create_count(x))
                 count_spam += 1
@@ -119,18 +119,18 @@ class Naive_bayes_model:
     
     
     def predict(self, path_to_email):
-        p_msg_spam = self.p_spam
-        p_msg_ham = self.p_ham
+        p_msg_spam = math.log(self.p_spam)
+        p_msg_ham = math.log(self.p_ham)
         with open(path_to_email, 'r', encoding='latin1') as file:
             line = file.readline().strip()
             
             while(line):
                 for word in line.split():
                     if(word in self.p_token_spam):
-                        p_msg_spam *= self.p_token_spam[word]
+                        p_msg_spam += math.log(self.p_token_spam[word])
                     
                     if(word in self.p_token_ham):
-                        p_msg_ham *= self.p_token_ham[word]
+                        p_msg_ham += math.log(self.p_token_ham[word])
                         
                 line = file.readline().strip()
                 
@@ -140,9 +140,7 @@ class Naive_bayes_model:
 if __name__ == '__main__':
     data_path = sys.argv[1].strip()
     dataset = load_data(data_path)
-    print(dataset[:10])
     model = Naive_bayes_model()
     model.train(dataset)
-    print(model.p_ham, model.p_spam, model.p_token_spam)
     output_path = './nbmodel.txt'
     model.save(output_path)
