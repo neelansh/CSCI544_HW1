@@ -24,7 +24,7 @@ def create_count(path):
     with open(path, 'rt', encoding='latin1') as file:
         line = file.readline().strip()
         while(line):
-            c.update(line.split(' '))
+            c.update(line.split())
             line = file.readline().strip()            
     return c
 
@@ -47,17 +47,40 @@ class Naive_bayes_model:
                 count_token_ham.update(create_count(x))
                 count_ham += 1
                 
+                
+        vocabulary = set(list(count_token_ham.keys()) + list(count_token_spam.keys()))
+        
+        smoothing_flag = False
+        for word in vocabulary:
+            if(not word in count_token_ham):
+                count_token_ham[word] = 1
+                smoothing_flag = True
+            if(not word in count_token_spam):
+                count_token_spam[word] = 1
+                smoothing_flag = True
+                
         p_token_spam = {}
         p_token_ham = {}
-        total_number_of_tokens_spam = sum([v for k, v in count_token_spam.items()])
-        total_number_of_tokens_ham = sum([v for k, v in count_token_ham.items()])
+        if(smoothing_flag):
+            total_number_of_tokens_spam = sum([v for k, v in count_token_spam.items()]) + len(vocabulary)
+            total_number_of_tokens_ham = sum([v for k, v in count_token_ham.items()]) + len(vocabulary)
+        else:
+            total_number_of_tokens_spam = sum([v for k, v in count_token_spam.items()])
+            total_number_of_tokens_ham = sum([v for k, v in count_token_ham.items()])
         
         for k, v in count_token_spam.items():
-            p_token_spam[k] = count_token_spam[k] / total_number_of_tokens_spam
+            if(smoothing_flag):
+                p_token_spam[k] = (count_token_spam[k]+1) / total_number_of_tokens_spam
+            else:
+                p_token_spam[k] = count_token_spam[k] / total_number_of_tokens_spam
             
             
         for k, v in count_token_ham.items():
-            p_token_ham[k] = count_token_ham[k] / total_number_of_tokens_ham
+            if(smoothing_flag):
+                p_token_ham[k] = (count_token_ham[k]+1) / total_number_of_tokens_ham
+            else:
+                p_token_ham[k] = count_token_ham[k] / total_number_of_tokens_ham
+                
             
         p_ham = count_ham / (count_ham+count_spam)
         p_spam = count_spam / (count_ham+count_spam)
@@ -96,8 +119,23 @@ class Naive_bayes_model:
     
     
     def predict(self, path_to_email):
-        with open(path_to_email, 'r', encoding='latin1'):
+        p_msg_spam = self.p_spam
+        p_msg_ham = self.p_ham
+        with open(path_to_email, 'r', encoding='latin1') as file:
+            line = file.readline().strip()
             
+            while(line):
+                for word in line.split():
+                    if(word in self.p_token_spam):
+                        p_msg_spam *= self.p_token_spam[word]
+                    
+                    if(word in self.p_token_ham):
+                        p_msg_ham *= self.p_token_ham[word]
+                        
+                line = file.readline().strip()
+                
+        return 'ham' if p_msg_ham >= p_msg_spam else 'spam'
+                        
 
 if __name__ == '__main__':
     data_path = sys.argv[1].strip()
