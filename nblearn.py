@@ -20,19 +20,20 @@ def load_data(path):
     return dataset
 
 
-def create_count(path):
-    c = Counter()
-    with open(path, 'rt', encoding='latin1') as file:
-        line = file.readline().strip()
-        while(line):
-            c.update(line.split())
-            line = file.readline().strip()            
-    return c
-
 class Naive_bayes_model:
     def __init__(self):
         return
     
+    def create_count(self, path):
+        c = Counter()
+        with open(path, 'rt', encoding='latin1') as file:
+            line = file.readline().strip()
+            while(line):
+                c.update(line.split())
+                line = file.readline().strip()            
+        return c
+
+   
     def train(self, dataset):
         count_ham = 0
         count_spam = 0 
@@ -41,10 +42,10 @@ class Naive_bayes_model:
         
         for (x, y) in dataset:
             if(y == 'spam'):
-                count_token_spam.update(create_count(x))
+                count_token_spam.update(self.create_count(x))
                 count_spam += 1
             elif(y == 'ham'):
-                count_token_ham.update(create_count(x))
+                count_token_ham.update(self.create_count(x))
                 count_ham += 1
                 
                 
@@ -53,10 +54,10 @@ class Naive_bayes_model:
         smoothing_flag = False
         for word in vocabulary:
             if(not word in count_token_ham):
-                count_token_ham[word] = 1
+                count_token_ham[word] = 0
                 smoothing_flag = True
             if(not word in count_token_spam):
-                count_token_spam[word] = 1
+                count_token_spam[word] = 0
                 smoothing_flag = True
                 
         p_token_spam = {}
