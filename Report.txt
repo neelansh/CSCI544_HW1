@@ -1,0 +1,31 @@
+Assignment 1 Report
+
+Name: Neelansh Garg
+
+1. Performance on the development data with 100% of the training data
+1a. spam precision: 0.9930
+1b. spam recall: 0.9774
+1c. spam F1 score: 0.9851 
+1d. ham precision: 0.9467
+1e. ham recall: 0.9833
+1f. ham F1 score: 0.9646
+
+2. Performance on the development data with 10% of the training data
+2a. spam precision: 0.9910
+2b. spam recall: 0.9589
+2c. spam F1 score: 0.9746
+2d. ham precision: 0.9067
+2e. ham recall: 0.9786
+2f. ham F1 score: 0.9413
+
+3. Description of enhancement(s) you tried (e.g., different approach(es) to smoothing, treating common words differently, dealing with unknown words differently):
+
+I remove punctuationd from the training data using nltk tokenizer, and also removed the stop words using nltk and used laplace smoothing with alpha=0.75 instead of add on smoothing. I also tried stemming but that decreased the spam precision and hence i removed it.
+
+4. Best performance results based on enhancements. Note that these could be the same or worse than the standard implementation.
+4a. spam precision: 0.9961
+4b. spam recall: 0.9839
+4c. spam F1 score: 0.9900
+4d. ham precision: 0.9618
+4e. ham recall: 0.9906
+4f. ham F1 score: 0.9760
